@@ -1,100 +1,48 @@
 package OOP;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 
 public class Attendance {
 
-    static ArrayList<Student> students = new ArrayList<>();
-    static Set<Student> set = new LinkedHashSet<>(students);
-    static Scanner scanner = new Scanner(System.in);
-
     public static void main(String[] args) {
+        List<Student> students = new ArrayList<>();
+        Scanner scanner = new Scanner(System.in);
+        AttendanceService service = new AttendanceService(students);
+
         boolean running = true;
         while (running) {
-            System.out.println("\n\tWelcome to the Attendance System!!");
-            System.out.println("\t---------------------------------\n");
-            System.out.println("Please choose an option:");
-            System.out.println("1. Add a student");
-            System.out.println("2. Mark attendance");
-            System.out.println("3. View attendance records");
-            System.out.println("4. Exit");
-
+            DisplayService.showMenu();
             int choice = Integer.parseInt(scanner.nextLine());
             switch (choice) {
                 case 1:
-                    addStudent();
+                    DisplayService.showMessage("Enter the student's id:");
+                    String studentId = scanner.nextLine();
+                    DisplayService.showMessage("Enter the student's name:");
+                    String name = scanner.nextLine();
+                    DisplayService.showMessage("Enter the student's course name:");
+                    String courseName = scanner.nextLine();
+                    boolean added = service.addStudent(studentId, name, courseName);
+                    DisplayService.showMessage(added ? "Student added successfully!" : "Student ID " + studentId + " already exists.");
                     break;
                 case 2:
-                    markAttendance();
+                    DisplayService.showMessage("Enter the student's id:");
+                    String markId = scanner.nextLine();
+                    String markedName = service.markAttendance(markId);
+                    DisplayService.showMessage(markedName != null ? "Attendance marked for " + markedName : "Student not found.");
                     break;
                 case 3:
-                    viewAttendance();
+                    DisplayService.showAttendance(service.getStudents());
                     break;
                 case 4:
-                    System.out.println("Exiting the system....!");
+                    DisplayService.showMessage("Exiting the system....!");
                     running = false;
                     break;
                 default:
-                    System.out.println("Invalid choice. Please try again.");
+                    DisplayService.showMessage("Invalid choice. Please try again.");
             }
         }
+        scanner.close();
     }
-
-    public static void addStudent() {
-        System.out.println("Enter the student's id:");
-        String studentId = scanner.nextLine();
-        for (Student s : students) {
-            if (s.id.equals(studentId)) {
-                System.out.println("Student ID " + studentId + " already exists.");
-                return;
-            }
-        }
-        System.out.println("Enter the student's name");
-        String name = scanner.nextLine();
-        System.out.println("Enter the students course name");
-        String courseName = scanner.nextLine();
-
-        students.add(new Student(studentId, name, false, courseName));
-        System.out.println("Student added successfully!");
-    }
-
-    public static void markAttendance() {
-        System.out.println("Enter the student's id:");
-        String studentId = scanner.nextLine();
-        for (Student student : students) {
-            if (student.id.equals(studentId)) {
-                student.isPresent = true;
-                System.out.println("Attendance marked for " + student.name);
-                return;
-            }
-        }
-        System.out.println("Student not found.");
-
-    }
-
-    public static void viewAttendance() {
-        if ((students.isEmpty())) {
-            System.out.println("No students in the system.");
-            return;
-        }
-        int count = 0;
-        System.out.println("Attendance Records:");
-        System.out.println("-------------------");
-        for (Student student : students) {
-            String status = student.isPresent ? "Present" : "Absent";
-            System.out.println("Student ID: " + student.id + ", Name: " + student.name + ", Is Present: "
-                    + status + ", Course Name: " + student.courseName);
-            if (student.isPresent) {
-                count++;
-            }
-        }
-        System.out.println("Total present students: " + count);
-        double percentage = ((double) count / students.size()) * 100;
-        System.out.println("Attendance Percentage: " + percentage + "%");
-    }
-
 }
